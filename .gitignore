@@ -1,0 +1,7 @@
+/target
+# Claude
+.claude/settings.local.json
+.claude/worktrees/
+
+# Local mise settings
+mise.local.toml

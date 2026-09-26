@@ -1,0 +1,56 @@
+[workspace]
+members = [".", "desktop"]
+# `cargo build`, `test`, and `clippy` at the root cover the CLI, TUI, hook,
+# and MCP server only. The desktop client pulls in GPUI and Linux system
+# libraries, so it is built on purpose: `mise run desktop`.
+default-members = ["."]
+resolver = "3"
+
+[package]
+name = "pulsline"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Journal your coding-agent work and see your day as a timeline, locally"
+license = "MIT"
+repository = "https://github.com/k1-c/pulsline"
+homepage = "https://github.com/k1-c/pulsline"
+keywords = ["timeline", "journal", "claude-code", "tui", "cli"]
+categories = ["command-line-utilities", "development-tools"]
+readme = "README.md"
+# The plugins are installed from the repository, and the desktop client is
+# its own package.
+exclude = ["agent-plugin/", ".claude-plugin/", ".agents/", "desktop/", "docs/"]
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "pulsline"
+path = "src/main.rs"
+
+[dependencies]
+# CLI
+clap = { version = "4.6", features = ["derive"] }
+
+# Data
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+jiff = { version = "0.2", features = ["serde"] }
+ulid = { version = "3", features = ["serde"] }
+# `bundled` compiles SQLite in, so no system library is needed.
+rusqlite = { version = "0.40", features = ["bundled"] }
+
+# Paths
+directories = "6"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

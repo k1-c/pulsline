@@ -1,0 +1,64 @@
+# Local development environment.
+#
+#   mise install          fetch the toolchain
+#   mise run verify       fmt, lint, test, build — the gate before every commit
+#   mise run dev -- ...   run the CLI from source
+#   mise run desktop      run the desktop client (GPUI)
+#
+# CI pins its own toolchain (dtolnay/rust-toolchain@stable), so this file only
+# governs local work. The root package needs nothing outside the toolchain:
+# SQLite is compiled in. The desktop client also needs GPUI's system
+# libraries, which desktop/with-deps.sh supplies (desktop/shell.nix on NixOS).
+
+[tools]
+rust = { version = "stable", components = "llvm-tools-preview" }
+# `mise run coverage`
+"aqua:taiki-e/cargo-llvm-cov" = "0.9.1"
+
+[tasks.fmt]
+description = "Format the workspace"
+run = "cargo fmt --all"
+
+[tasks.lint]
+description = "Clippy, with warnings denied"
+run = "cargo clippy --all-targets -- -D warnings"
+
+[tasks.test]
+description = "Run the test suite"
+run = "cargo test"
+
+[tasks.build]
+description = "Build the debug binary"
+run = "cargo build"
+
+[tasks.dev]
+description = "Run the CLI from source (arguments after --)"
+run = "cargo run --"
+
+[tasks.verify]
+description = "Format, lint, test, and build, in that order"
+run = [
+    "cargo fmt --all",
+    "cargo clippy --all-targets -- -D warnings",
+    "cargo test",
+    "cargo build",
+]
+
+[tasks.desktop]
+description = "Run the desktop client from source"
+run = "desktop/with-deps.sh cargo run -p pulsline-desktop"
+
+[tasks."verify:desktop"]
+description = "Lint and build the desktop client"
+run = [
+    "cargo fmt --all",
+    "desktop/with-deps.sh cargo clippy -p pulsline-desktop --all-targets -- -D warnings",
+    "desktop/with-deps.sh cargo build -p pulsline-desktop",
+]
+
+[tasks.coverage]
+description = "Line coverage by file of the core, then in all"
+run = [
+    "cargo llvm-cov --summary-only 2>/dev/null | grep -E '^(Filename|core/)'",
+    "cargo llvm-cov report --summary-only | grep -E '^(Filename|TOTAL)'",
+]

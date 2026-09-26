@@ -1,0 +1,18 @@
+[package]
+name = "pulsline-desktop"
+version = "0.1.0"
+edition = "2024"
+description = "Pulsline's desktop client, built on GPUI"
+license = "MIT"
+repository = "https://github.com/k1-c/pulsline"
+# GPUI's API moves between releases and its Linux build needs system
+# libraries, so the desktop client ships from the repository, not crates.io.
+publish = false
+
+[[bin]]
+name = "pulsline-desktop"
+path = "src/main.rs"
+
+[dependencies]
+pulsline = { path = ".." }
+gpui = "0.2.2"
